@@ -4,7 +4,9 @@
 # Find the resource ID in Dev-Tools - Network panel after clicking the download link.
 RESOURCE_ID=1940711724539809794
 
-if [ -z "$(ls -A lib/wch/svd/*.svd 2>/dev/null)" ]
+cd $(dirname $0)
+
+if [ ! -d /tmp/MRS-linux-x64 ]
 then
     URL=$(curl -s "https://api.mounriver.com/mountriver/api/version/getDownloadUrl?resourceId=$RESOURCE_ID" | jq -r .result)
 
@@ -13,16 +15,19 @@ then
 
     echo "Extracting SVD files"
     #tar -C /tmp -xvf /tmp/mounriver.tar.xz MRS-linux-x64/resources/app/resources/linux/components/WCH/SDK/default/
-
-    echo "Copying SVD files"
-    mkdir -p lib/wch/svd
-    find /tmp/MRS-linux-x64/resources/app/resources/linux/components/WCH/SDK/default/ -name '*.svd' -exec cp {} lib/wch/svd/ \;
-
 fi
 
+echo "Copying SVD files"
+find /tmp/MRS-linux-x64/resources/app/resources/linux/components/WCH/SDK/default/ -name '*.svd' -exec cp {} . \;
 
 for PROBLEM in CH57Xxx CH59Xxx
 do
-    rm -f lib/wch/svd/${PROBLEM}.svd
+    rm -f ${PROBLEM}.svd
 done
 
+for svd_file in *.svd
+do
+    if [ -f "$svd_file" ]; then
+        sed -i 's/<?xml version="1\.1"/<?xml version="1.0"/' "$svd_file"
+    fi
+done

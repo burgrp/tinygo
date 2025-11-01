@@ -243,8 +243,8 @@ gen-device-renesas: build/gen-device-svd
 	GO111MODULE=off $(GO) fmt ./src/device/renesas
 
 gen-device-wch: build/gen-device-svd
-	lib/wch/get-svd
-	./build/gen-device-svd lib/wch/svd/ src/device/wch/
+	src/device/wch/svd-update
+	./build/gen-device-svd src/device/wch/ src/device/wch/
 	GO111MODULE=off $(GO) fmt ./src/device/wch
 
 $(LLVM_PROJECTDIR)/llvm:
