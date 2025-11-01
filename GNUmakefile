@@ -242,6 +242,11 @@ gen-device-renesas: build/gen-device-svd
 	./build/gen-device-svd -source=https://github.com/cmsis-svd/cmsis-svd-data/tree/master/data/Renesas lib/cmsis-svd/data/Renesas/ src/device/renesas/
 	GO111MODULE=off $(GO) fmt ./src/device/renesas
 
+gen-device-wch: build/gen-device-svd
+	lib/wch/get-svd
+	./build/gen-device-svd lib/wch/svd/ src/device/wch/
+	GO111MODULE=off $(GO) fmt ./src/device/wch
+
 $(LLVM_PROJECTDIR)/llvm:
 	git clone -b xtensa_release_19.1.2 --depth=1 https://github.com/espressif/llvm-project $(LLVM_PROJECTDIR)
 llvm-source: $(LLVM_PROJECTDIR)/llvm ## Get LLVM sources

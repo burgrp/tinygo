@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# MounRiverStudio is downloaded from https://www.mounriver.com/download
+# Find the resource ID in Dev-Tools - Network panel after clicking the download link.
+RESOURCE_ID=1940711724539809794
+
+if [ -z "$(ls -A lib/wch/svd/*.svd 2>/dev/null)" ]
+then
+    URL=$(curl -s "https://api.mounriver.com/mountriver/api/version/getDownloadUrl?resourceId=$RESOURCE_ID" | jq -r .result)
+
+    echo "Downloading mounriver from $URL"
+    #curl -o /tmp/mounriver.tar.xz $URL
+
+    echo "Extracting SVD files"
+    #tar -C /tmp -xvf /tmp/mounriver.tar.xz MRS-linux-x64/resources/app/resources/linux/components/WCH/SDK/default/
+
+    echo "Copying SVD files"
+    mkdir -p lib/wch/svd
+    find /tmp/MRS-linux-x64/resources/app/resources/linux/components/WCH/SDK/default/ -name '*.svd' -exec cp {} lib/wch/svd/ \;
+
+fi
+
+
+for PROBLEM in CH57Xxx CH59Xxx
+do
+    rm -f lib/wch/svd/${PROBLEM}.svd
+done
+
