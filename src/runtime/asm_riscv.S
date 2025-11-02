@@ -15,6 +15,7 @@ tinygo_scanCurrentStack:
    // Push callee-saved registers onto the stack.
    addi sp, sp, -13*REGSIZE
    SREG ra,  0*REGSIZE(sp)
+#ifndef __riscv_e
    SREG s11, 1*REGSIZE(sp)
    SREG s10, 2*REGSIZE(sp)
    SREG s9,  3*REGSIZE(sp)
@@ -25,6 +26,7 @@ tinygo_scanCurrentStack:
    SREG s4,  8*REGSIZE(sp)
    SREG s3,  9*REGSIZE(sp)
    SREG s2,  10*REGSIZE(sp)
+#endif
    SREG s1,  11*REGSIZE(sp)
    SREG s0,  12*REGSIZE(sp)
 

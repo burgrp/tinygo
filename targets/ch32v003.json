@@ -1,0 +1,9 @@
+{
+	"inherits": ["riscv32e"],
+	"build-tags": ["ch32v003", "ch32v003xx", "wch"],
+	"linkerscript": "targets/ch32v003.ld",
+	"default-stack-size": 512,
+	"scheduler": "none",
+	"gc": "none",
+	"flash-command": "gdb-multiarch -ex \"target extended-remote {port}\" -ex \"load\" -ex \"monitor reset\" -ex \"detach\" -ex \"quit\" {elf}"
+}

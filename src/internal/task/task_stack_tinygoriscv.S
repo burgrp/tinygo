@@ -32,6 +32,7 @@ tinygo_swapTask:
     // Push all callee-saved registers.
     addi sp, sp, -52
     sw ra,  48(sp)
+#ifndef __riscv_e
     sw s11, 44(sp)
     sw s10, 40(sp)
     sw s9,  36(sp)
@@ -42,6 +43,7 @@ tinygo_swapTask:
     sw s4,  16(sp)
     sw s3,  12(sp)
     sw s2,   8(sp)
+#endif
     sw s1,   4(sp)
     sw s0,    (sp)
 
@@ -53,6 +55,7 @@ tinygo_swapTask:
 
     // Pop all saved registers from this new stack.
     lw ra,  48(sp)
+#ifndef __riscv_e
     lw s11, 44(sp)
     lw s10, 40(sp)
     lw s9,  36(sp)
@@ -63,6 +66,7 @@ tinygo_swapTask:
     lw s4,  16(sp)
     lw s3,  12(sp)
     lw s2,   8(sp)
+#endif
     lw s1,   4(sp)
     lw s0,    (sp)
     addi sp, sp, 52

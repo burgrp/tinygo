@@ -1,0 +1,17 @@
+{
+	"inherits": ["riscv"],
+	"llvm-target": "riscv32-unknown-none",
+	"cpu": "generic-rv32",
+	"target-abi": "ilp32e",
+	"build-tags": ["tinygo.riscv32", "tinygo.riscv32e"],
+	"features": "+c,+e,+zicsr,+zifencei,-a,-d,-f,-m",
+	"scheduler": "tasks",
+	"default-stack-size": 1024,
+	"cflags": [
+		"-march=rv32ec"
+	],
+	"ldflags": [
+		"-melf32lriscv"
+	],
+	"gdb": ["gdb-multiarch"]
+}

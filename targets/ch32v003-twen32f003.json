@@ -1,0 +1,4 @@
+{
+	"inherits": ["ch32v003"],
+	"build-tags": ["ch32v003_twen32f003"]
+}

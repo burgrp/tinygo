@@ -35,12 +35,14 @@ handleInterruptASM:
     SREG    a3, 7*REGSIZE(sp)
     SREG    a4, 8*REGSIZE(sp)
     SREG    a5, 9*REGSIZE(sp)
+#ifndef __riscv_e
     SREG    a6, 10*REGSIZE(sp)
     SREG    a7, 11*REGSIZE(sp)
     SREG    t3, 12*REGSIZE(sp)
     SREG    t4, 13*REGSIZE(sp)
     SREG    t5, 14*REGSIZE(sp)
     SREG    t6, 15*REGSIZE(sp)
+#endif
 #ifdef __riscv_flen
     SFREG   f0, (0  + 16)*REGSIZE(sp)
     SFREG   f1, (1  + 16)*REGSIZE(sp)
@@ -110,12 +112,14 @@ handleInterruptASM:
     LFREG   f30,(1 + 16)*REGSIZE(sp)
     LFREG   f31,(0 + 16)*REGSIZE(sp)
 #endif
+#ifndef __riscv_e
     LREG    t6, 15*REGSIZE(sp)
     LREG    t5, 14*REGSIZE(sp)
     LREG    t4, 13*REGSIZE(sp)
     LREG    t3, 12*REGSIZE(sp)
     LREG    a7, 11*REGSIZE(sp)
     LREG    a6, 10*REGSIZE(sp)
+#endif
     LREG    a5, 9*REGSIZE(sp)
     LREG    a4, 8*REGSIZE(sp)
     LREG    a3, 7*REGSIZE(sp)
