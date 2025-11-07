@@ -8,5 +8,5 @@
 	"cflags": [
 		"-DQINGKE_V2=1"
 	],
-	"flash-command": "gdb-multiarch -ex \"target extended-remote {port}\" -ex \"load\" -ex \"monitor reset\" -ex \"detach\" -ex \"quit\" {elf}"
+	"flash-command": "gdb-multiarch --batch-silent -ex \"target extended-remote {port}\" -ex \"load\" -ex \"monitor reset\" -ex \"detach\" -ex \"quit\" {elf}"
 }
