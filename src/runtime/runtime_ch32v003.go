@@ -4,23 +4,107 @@ package runtime
 
 import (
 	"device/riscv"
+	"device/wch"
 	"machine"
-	"unsafe"
 )
+
+const sysTickInterruptCode = 12
 
 //export main
 func main() {
 	// Route traps to the TinyGo interrupt handler.
-	riscv.MTVEC.Set(uintptr(unsafe.Pointer(&handleInterruptASM)))
+	//riscv.MTVEC.Set(uintptr(unsafe.Pointer(&handleInterruptASM)))
+	//riscv.MSTATUS.SetBits(riscv.MSTATUS_MIE)
 
-	preinit()
-	initSystem()
-	run()
-	exit(0)
+	machine.PD0.Configure(machine.PinConfig{Mode: machine.PinOutput})
+	machine.PD4.Configure(machine.PinConfig{Mode: machine.PinOutput})
+
+	machine.PD0.Set(true)
+
+	for {
+		riscv.Asm("ecall")
+	}
+
+	// preinit()
+	// initSysTick()
+	// //machine.InitSerial()
+	// run()
+	// exit(0)
 }
 
-func initSystem() {
-	machine.InitSerial()
+func initSysTick() {
+
+	wch.PFIC.STK_CTLR.Set(0)
+	wch.PFIC.STK_SR.Set(0)
+	wch.PFIC.SetSTK_CNTL(0)
+
+	// ticksPerMillisecond := machine.CPUFrequency / 1000
+	// if ticksPerMillisecond == 0 {
+	// 	ticksPerMillisecond = 1
+	// }
+	ticksPerMillisecond := 100
+	wch.PFIC.SetSTK_CMPLR(uint32(ticksPerMillisecond - 1))
+
+	wch.PFIC.SetSTK_CTLR_STRE(1)
+	wch.PFIC.SetSTK_CTLR_STCLK(1)
+	wch.PFIC.SetSTK_CTLR_STIE(1)
+	wch.PFIC.SetSTK_CTLR_INIT(1)
+
+	wch.PFIC.SetIENR1_INTEN12(1)
+	wch.PFIC.IENR1.Set(0xFFFFFFFF)
+	wch.PFIC.IENR2.Set(0xFFFFFFFF)
+
+	wch.PFIC.SetSTK_CTLR_STE(1)
+
+	systickMillis = 0
+
+	//riscv.Asm("ecall")
+	wch.PFIC.SetSTK_CTLR_SWIE(1)
+
+}
+
+//go:extern handleInterruptASM
+var handleInterruptASM [0]uintptr
+
+//export handleInterrupt
+func handleInterrupt() {
+
+	machine.PD4.Set(true)
+	machine.PD4.Set(false)
+
+	// for {
+	// }
+
+	// cause := riscv.MCAUSE.Get()
+	// if cause&(1<<31) != 0 {
+	// 	switch cause & 0xff {
+	// 	case riscv.MachineTimerInterrupt, sysTickInterruptCode:
+	// 		sysTickInterrupt()
+	// 	default:
+	// 		// Unhandled interrupt.
+	// 	}
+	// } else {
+	// 	handleException(uint32(cause))
+	// }
+	// // Clear MCAUSE so interrupt.In() reports the correct state.
+	// riscv.MCAUSE.Set(0)
+}
+
+func handleException(code uint32) {
+
+	machine.PD4.Set(true)
+
+	print("fatal error: exception with mcause=")
+	print(code)
+	print(" mepc=")
+	print(riscv.MEPC.Get())
+	println()
+	abort()
+}
+
+func sysTickInterrupt() {
+	wch.PFIC.SetSTK_SR_CNTIF(0)
+	systickMillis++
 }
 
 func putchar(c byte) {
@@ -45,63 +129,35 @@ func abort() {
 	}
 }
 
-var t timeUnit
+const nanosPerMillisecond = int64(1_000_000)
+
+var systickMillis uint64
 
 func ticks() timeUnit {
-	t = t + 10
-
-	return t
-	// for {
-	// 	hi := uint32(riscv.CYCLEH.Get())
-	// 	lo := uint32(riscv.CYCLE.Get())
-	// 	hi2 := uint32(riscv.CYCLEH.Get())
-	// 	if hi == hi2 {
-	// 		return timeUnit(uint64(hi)<<32 | uint64(lo))
-	// 	}
-	// }
+	// mask := riscv.DisableInterrupts()
+	current := systickMillis
+	// riscv.EnableInterrupts(mask)
+	return timeUnit(current)
 }
 
 func ticksToNanoseconds(ticks timeUnit) int64 {
-	return int64(ticks) * 125 / 3
-	//return int64(ticks)
+	return int64(ticks) * nanosPerMillisecond
 }
 
 func nanosecondsToTicks(ns int64) timeUnit {
-	//return timeUnit(ns)
-	return timeUnit(ns * 3 / 125)
+	if ns <= 0 {
+		return 0
+	}
+	return timeUnit((ns + nanosPerMillisecond - 1) / nanosPerMillisecond)
 }
 
 func sleepTicks(d timeUnit) {
-	target := ticks() + d
-	for ticks() < target {
-		//riscv.Asm("wfi")
-	}
+	// target := ticks() + d
+	// for ticks() < target {
+	// 	//riscv.Asm("wfi")
+	// }
 }
 
 func exit(code int) {
-	abort()
-}
-
-//go:extern handleInterruptASM
-var handleInterruptASM [0]uintptr
-
-//export handleInterrupt
-func handleInterrupt() {
-	cause := riscv.MCAUSE.Get()
-	if cause&(1<<31) != 0 {
-		// Interrupt handling is not yet implemented for this device.
-	} else {
-		handleException(uint32(cause))
-	}
-	// Clear MCAUSE so interrupt.In() reports the correct state.
-	riscv.MCAUSE.Set(0)
-}
-
-func handleException(code uint32) {
-	print("fatal error: exception with mcause=")
-	print(code)
-	print(" mepc=")
-	print(riscv.MEPC.Get())
-	println()
 	abort()
 }
