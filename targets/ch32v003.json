@@ -5,5 +5,8 @@
 	"default-stack-size": 512,
 	"scheduler": "none",
 	"gc": "none",
+	"cflags": [
+		"-DQINGKE_V2=1"
+	],
 	"flash-command": "gdb-multiarch -ex \"target extended-remote {port}\" -ex \"load\" -ex \"monitor reset\" -ex \"detach\" -ex \"quit\" {elf}"
 }
